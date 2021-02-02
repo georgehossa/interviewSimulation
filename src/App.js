@@ -16,14 +16,25 @@ function App() {
     fetch(URL)
       .then(res => res.json())
       .then(data => {
-        setPagination(data.pagination);
+        setPagination({
+          ...pagination,
+          pageSize: data.pagination.pageSize,
+          page: data.pagination.page,
+          total: data.pagination.total,
+        });
         setData(data.results);
       });
-  }, [data]);
+  }, [data, pagination]);
 
   const handlePagination = (pagination) => {
-    fetch(`${URL}/${pagination.page + 1}`).then(res => res.json()).then(data => {
-      setPagination(data.pagination);
+    console.log(pagination);
+    fetch(`${URL}?page=${pagination.current}`).then(res => res.json()).then(data => {
+      setPagination({
+        ...pagination,
+        pageSize: data.pagination.pageSize,
+        page: data.pagination.page,
+        total: data.pagination.total,
+      });
       setData(data.results);
     });
   }
@@ -53,6 +64,7 @@ function App() {
       <Table
         columns={columns}
         dataSource={data}
+        pagination={pagination}
         onChange={handlePagination} />
     </div>
   );
