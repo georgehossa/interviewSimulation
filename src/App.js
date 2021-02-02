@@ -10,14 +10,23 @@ function App() {
     total: null,
   });
 
+  const URL = 'https://api.datos.gob.mx/v2/sinaica';
+
   useEffect(() => {
-    fetch('https://api.datos.gob.mx/v2/sinaica')
+    fetch(URL)
       .then(res => res.json())
       .then(data => {
         setPagination(data.pagination);
         setData(data.results);
       });
   }, [data]);
+
+  const handlePagination = (pagination) => {
+    fetch(`${URL}/${pagination.page + 1}`).then(res => res.json()).then(data => {
+      setPagination(data.pagination);
+      setData(data.results);
+    });
+  }
 
   let columns = [
     {
@@ -41,7 +50,10 @@ function App() {
 
   return (
     <div className="App">
-      <Table columns={columns} dataSource={data} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        onChange={handlePagination} />
     </div>
   );
 }
