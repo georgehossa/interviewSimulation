@@ -5,38 +5,37 @@ import {Table} from 'antd'
 function App() {
   const [data, setData] = useState([]);
   const [pagination, setPagination] = useState({
-    pageSize: null,
-    page: null,
-    total: null,
+    current: 1,
+    pageSize: 0,
   });
+  const API_URL = 'https://api.datos.gob.mx/v2/sinaica';
 
-  const URL = 'https://api.datos.gob.mx/v2/sinaica';
+
+
 
   useEffect(() => {
-    fetch(URL)
-      .then(res => res.json())
-      .then(data => {
+    const getData = async (url) => {
+      try {
+        let res = await fetch(`${url}`);
+        let data = await res.json();
         setPagination({
           ...pagination,
           pageSize: data.pagination.pageSize,
-          page: data.pagination.page,
           total: data.pagination.total,
-        });
-        setData(data.results);
-      });
-  }, [data, pagination]);
+        })
+        return setData(data.results);
+      } catch(err) {
+        console.log(err);
+      }
+    };
+    getData(API_URL);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handlePagination = (pagination) => {
+  const handlePagination = (pagination, filters, sorter) => {
     console.log(pagination);
-    fetch(`${URL}?page=${pagination.current}`).then(res => res.json()).then(data => {
-      setPagination({
-        ...pagination,
-        pageSize: data.pagination.pageSize,
-        page: data.pagination.page,
-        total: data.pagination.total,
-      });
-      setData(data.results);
-    });
+    fetch(`${API_URL}?page=${pagination.current}`).then(res => res.json()).then(data => setData(data.results));
+    setPagination({...pagination})
   }
 
   let columns = [
